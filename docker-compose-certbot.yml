@@ -1,0 +1,21 @@
+version: '3.8'
+services:
+  certbot:
+    image: 'certbot/certbot:v2.1.1'
+    container_name: certbot-app
+    volumes:
+      - '/hostPath/letsConf:/etc/letsencrypt'
+      - '/hostPath/letsLib:/var/lib/letsencrypt'
+      - '/hostPath/letsLog:/var/log/letsencrypt'
+      - '/hostPath/certbotAcmeChallenge:/acme-challenge'
+    networks:
+      certbot-net:
+        ipv4_address: 172.18.0.2
+networks:
+  certbot-net:
+    name: certbot-net
+    ipam:
+      driver: default
+      config:
+        - subnet: '172.18.0.0/28'
+          gateway: 172.18.0.1

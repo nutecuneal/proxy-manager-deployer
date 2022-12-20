@@ -1,8 +1,8 @@
 version: '3.8'
 services:
   nginx:
-    image: nginx:1.23.3-alpine
-    container_name: 'nginx-app'
+    image: 'nginx:1.23.3-alpine'
+    container_name: nginx-app
     ports:
       - '80:80'
       - '443:443'
@@ -12,23 +12,13 @@ services:
       - '/hostPath/letsEtc/live:/certs:ro'
       - '/hostPath/certbotAcmeChallenge:/data/www/acme-challenge:ro'
     networks:
-      nginx-network:
+      rproxy-net:
         ipv4_address: 172.18.0.2
-  certbot:
-    image: certbot/certbot:v2.1.1
-    container_name: 'nginx-certbot-app'
-    volumes:
-      - '/hostPath/letsEtc:/etc/letsencrypt'
-      - '/hostPath/letsLib:/var/lib/letsencrypt'
-      - '/hostPath/letsLog:/var/log/letsencrypt'
-      - '/hostPath/certbotAcmeChallenge:/acme-challenge'
-    networks:
-      nginx-network:
-        ipv4_address: 172.18.0.3
 networks:
-  nginx-network:
+  rproxy-net:
+    name: reverse-proxy-net
     ipam:
       driver: default
       config:
-        - subnet: 172.18.0.0/28
+        - subnet: '172.18.0.0/28'
           gateway: 172.18.0.1
