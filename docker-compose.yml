@@ -9,8 +9,8 @@ services:
     volumes:
       - '/hostPath/nginx.conf:/etc/nginx/nginx.conf:ro'
       - '/hostPath/nginxLog:/var/log/nginx'
-      - '/hostPath/letsEtc/live:/certs:ro'
-      - '/hostPath/certbotAcmeChallenge:/data/www/acme-challenge:ro'
+      - '/hostPath/certLive:/certs:ro'
+    # - '/hostPath/certbotAcmeChallenge:/data/www/acme-challenge:ro'
     networks:
       rproxy-net:
         ipv4_address: 172.18.0.2
