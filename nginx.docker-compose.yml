@@ -1,7 +1,7 @@
 version: '3.9'
 
 services:
-  nginx:
+  app:
     image: 'nginx:1.23.3-alpine'
     container_name: 'nginx-app'
     ports:
