@@ -1,0 +1,11 @@
+version: '3.9'
+
+services:
+  app:
+    image: 'certbot/certbot:v2.1.1'
+    container_name: 'certbot-app'
+    volumes:
+      - '$(pwd)/etc_lets:/etc/letsencrypt'
+      - '$(pwd)/lib_lets:/var/lib/letsencrypt'
+      - '$(pwd)/log_lets:/var/log/letsencrypt'
+      - '$(pwd)/certbot_acme_challenge:/var/www/certbot'
