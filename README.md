@@ -17,6 +17,9 @@ Este repositório abordará sobre como instalar servidores de **balanceamento de
         - [Volumes](#volumes)
         - [Rede](#rede)
       - [Executando o Docker-Compose](#executando-o-docker-compose)
+    - [Nginx Rede - Como Adicionar Containers](#nginx-rede---como-adicionar-containers)
+      - [Com Docker-Compose](#com-docker-compose)
+      - [Com Terminal](#com-terminal)
 
 ## Requisitos e Dependências
 
@@ -106,3 +109,33 @@ $ docker-compose -f nginx.docker-compose.yml up
 ```
 
 *Dica*: consulte a documentação *Nginx* para configurar o arquivo ***nginx.conf***. É preciso um configuração mínima para o container poder ser iniciado.
+
+
+### Nginx Rede - Como Adicionar Containers
+
+A rede Nginx foi pensada para que matenha o isolamento completo de outros containers presentes na máquina host, por isso, para que o container Nginx alcance outros containers é necessário adicioná-los a rede. Para isso existem dos métodos:
+
+
+#### Com Docker-Compose
+
+```yml
+# No [..]docker-compose.yml do seu serviço alvo.
+
+# Adicione:
+networks:
+  nginx-net:
+    name: 'nginx-net'
+    external: true
+
+# No serviço
+networks:
+  - nginx-net
+```
+
+#### Com Terminal
+
+```bash
+# Execute
+
+docker network connect nginx-net CONTAINER_NAME
+```
