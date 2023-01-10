@@ -16,11 +16,13 @@ Este repositório abordará sobre como instalar servidores de **balanceamento de
         - [Portas](#portas)
         - [Volumes](#volumes)
         - [Rede](#rede)
-        - [Subindo o Container](#subindo-o-container)
+      - [Executando o Docker-Compose](#executando-o-docker-compose)
 
 ## Requisitos e Dependências
 
 - [Docker e Docker-Compose](https://docs.docker.com/)
+
+<br>
 
 ## Nginx
 
@@ -82,8 +84,7 @@ volumes:
   - '/var/log/nginx:/var/log/nginx'
 ```
 
-Obs: os volumes **"\$(pwd)/certs_live:/certs:ro"** e **"\$(pwd)/certbot_acme_challenge:/data/www/acme-challenge:ro"** serão mapeados para os diretórios de armazenamento de seus certificados TLS/SSL e para o diretório de “ACME Challenge” usado pelo seu Certbot, respectivamente. 
-
+Info.: os volumes **"\$(pwd)/certs_live:/certs:ro"** e **"\$(pwd)/certbot_acme_challenge:/data/www/acme-challenge:ro"** serão mapeados para os diretórios de armazenamento de seus certificados TLS/SSL e para o diretório de “ACME Challenge” usado pelo seu Certbot, respectivamente. [Certificado TLS/SSL (HTTPS)](./README.cert.md)
 
 ##### Rede
 
@@ -98,10 +99,10 @@ config:
     gateway: 172.18.0.1
 ```
 
-##### Subindo o Container
+#### Executando o Docker-Compose
 
 ```bash
-$ docker-compose -f docker-compose.yml up
+$ docker-compose -f nginx.docker-compose.yml up
 ```
 
-*Obs*: consulte a documentação *Nginx* para configurar o arquivo ***nginx.conf***.
+*Dica*: consulte a documentação *Nginx* para configurar o arquivo ***nginx.conf***. É preciso um configuração mínima para o container poder ser iniciado.
