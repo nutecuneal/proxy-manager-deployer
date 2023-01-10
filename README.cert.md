@@ -1,22 +1,97 @@
-# Cert
+# Certificado SSL/TLS (HTTPS)
 
-### Certbot
+Neste documento será abordado sobre como gerenciar certificados SSL/TLS para HTTPS, utilizando Certbot (Let's Encrypt) e/ou OpenSSL.
 
-O Certbot é uma ferramenta de software gratuita e de código aberto para usar automaticamente os certificados Let's Encrypt em sites administrados manualmente para habilitar o HTTPS. O Let's Encrypt é uma Autoridade Certificadora gratuita, automatizada e aberta. Os certificados Let's Encrypt gratuitos têm validade de apenas 90 dias, com o Certbot é possível automatizar a criação e a renovação desses certificados.
+1. O [Certbot](https://certbot.eff.org/) é uma ferramenta de software gratuita e de código aberto para usar automaticamente os certificados [Let's Encrypt](https://letsencrypt.org/) em sites administrados manualmente para habilitar o HTTPS. O Let's Encrypt é uma Autoridade Certificadora gratuita, automatizada e aberta. Os certificados Let's Encrypt gratuitos têm validade de apenas 90 dias, com o Certbot é possível automatizar a criação e a renovação desses certificados. [Certbot - Docs](https://eff-certbot.readthedocs.io/en/stable/intro.html)
 
-- [Certbot](https://certbot.eff.org/)
-- [Let´s Encrypt](https://letsencrypt.org/)
-- [Certbot - Docs](https://eff-certbot.readthedocs.io/en/stable/intro.html)
+## Sumário
 
+- [Certificado SSL/TLS (HTTPS)](#certificado-ssltls-https)
+  - [Sumário](#sumário)
+  - [Requisitos e Dependências](#requisitos-e-dependências)
+  - [Certbot](#certbot)
+    - [Estrutura de Diretórios](#estrutura-de-diretórios)
+    - [Docker-Compose](#docker-compose)
+      - [Volume](#volume)
+    - [Obtendo um Certificado](#obtendo-um-certificado)
+      - [Com Nginx](#com-nginx)
+      - [Executando o Docker-Compose - Certbot](#executando-o-docker-compose---certbot)
+    - [Renovação Automática](#renovação-automática)
+      - [Configurando os Scripts](#configurando-os-scripts)
+      - [Job Cron](#job-cron)
+  - [OpenSSL (Manual)](#openssl-manual)
+    - [Instalação](#instalação)
+    - [Renovação](#renovação)
 
-#### Obtendo Certificado - Certbot
+## Requisitos e Dependências
 
-Se você optou por obter seu certificado via Certbot será necessário comprovar que o domínio é seu, por isso, na primeira execução rode o nginx com a seguinte configuração. Em seguida rode o comando da secção [Instalação - Certbot](#instalação---certbot).
+- Certbot
+  - [Docker e Docker-Compose](https://docs.docker.com/)
+- OpenSSL
+  - [OpenSSL](https://www.openssl.org/)
+  - [Documentação](https://www.openssl.org/docs/)
 
-Depois que obter o certificado você pode parar o nginx e fazer as suas configurações.
+<br>
 
-```text
-# nginx.com
+## Certbot
+
+### Estrutura de Diretórios
+
+```bash
+# Crie os diretórios.
+
+# Dir. Config/Dados
+$ mkdir  $(pwd)/etc-lets
+
+# Dir. Lib
+$ mkdir $(pwd)/lib-lets
+
+# Dir. Log
+$ mkdir $(pwd)/log-lets
+
+# Dir. ACME
+$ mkdir $(pwd)/acme-challenge
+```
+
+Sugestão (no Linux):
+- Dir. Config/Dados: */etc/letsencrypt*
+- Dir. Lib: */var/lib/letsencrypt*
+- Dir. Log: */var/log/letsencrypt*
+- Dir. ACME: */var/www/certbot*
+
+### Docker-Compose
+
+#### Volume
+
+```yml
+# certbot.docker-compose.yml (Em services.app)
+# Aponte para as pastas/arquivos criadas anteriormente.
+
+# Antes
+volumes:
+  - '$(pwd)/etc_lets:/etc/letsencrypt'
+  - '$(pwd)/lib_lets:/var/lib/letsencrypt'
+  - '$(pwd)/log_lets:/var/log/letsencrypt'
+  - '$(pwd)/certbot_acme_challenge:/var/www/certbot'
+
+# Depois (exemplo)
+volumes:
+  - '/etc/letsencrypt:/etc/letsencrypt'
+  - '/var/lib/letsencrypt:/var/lib/letsencrypt'
+  - '/var/log/letsencrypt:/var/log/letsencrypt'
+  - '/var/www/certbot:/var/www/certbot'
+```
+
+### Obtendo um Certificado
+
+Está secção será utilizada para obter o certificado pela primeira vez, ou seja, se você ainda não possui um certificado SSL/TLS.
+
+#### Com Nginx
+
+Inicie o seu Nginx com a seguinte configuração:
+
+```conf
+# nginx.conf
 
 events {
 
@@ -37,124 +112,51 @@ http {
 }
 ```
 
-
-<br>
-
-
-
-
-
-
-
-#### Certbot
-- [Docker e Docker-Compose](https://docs.docker.com/)
-  
-#### OpenSSL
-- [OpenSSL](https://www.openssl.org/)
-- [Documentação](https://www.openssl.org/docs/)
-
-
-
-## Gerenciamento de Certificados (TLS/SSL | HTTPS) - Certbot
-
-### Armazenamento - Certbot
-
-```bash
-# Dir. Config/Dados
-$ mkdir **/dir_letsconf
-
-# Dir. Lib
-$ mkdir **/dir_letslib
-
-# Dir. Log
-$ mkdir **/dir_letslog
-
-# Dir. ACME
-$ mkdir **/dir_acme-challenge
-```
-Sugestão (no Linux):
-- Dir. Config/Dados: /etc/letsencrypt
-- Dir. Lib: /var/lib/letsencrypt
-- Dir. Log: /var/log/letsencrypt
-- Dir. ACME: /var/www/certbot
-
-### Configuração Docker-Compose - Certbot
-
-```yml
-# docker-compose-certbot.yml
-# ... networks
-
-config:
-  - subnet: '172.18.0.0/28'
-    gateway: 172.18.0.1
-
-# Configure subnet e gateway para o "range" de sua preferência.
-
-# Não obrigatório.
-```
-
-```yml
-# docker-compose-certbot.yml
-# ... app
-
-# Altere a secção "volume",
-#   aponte para as pastas criadas anteriomente.
-# Ficando:
-volumes:
-  - '**/dir_letsconf:/etc/letsencrypt'
-  - '**/dir_letslib:/var/lib/letsencrypt'
-  - '**/dir_letslog:/var/log/letsencrypt'
-  - '**/dir_acme-challenge:/var/www/certbot'
-
-# Altere o valor de ipv4_address de acordo
-#   com o seu "range" configurado.
-glpi-net:
-  ipv4_address: 172.18.0.2
-```
-
-### Instalação - Certbot
-
-Altere todas as ocorrências de ***\*\*/docker-compose-certbot.yml*** pelo caminho do arquivo ***docker-compose-certbot.yml*** 
+#### Executando o Docker-Compose - Certbot
 
 ```bash
 # Execute para gerar um novo certificado
 
-$ docker-compose -f **/docker-compose-certbot.yml run -rm certbot certonly --webroot --webroot-path=/var/www/certbot -d $cert_value1 -m $cert_value2 --agree-tos
+$ docker-compose -f certbot.docker-compose.yml run --rm app certonly --webroot --webroot-path=$certb_var1 -m $certb_var2 -d $certb_var3 --agree-tos
 ```
 
-| Varíavel      | Descrição                                                    |
-| ------------- | ------------------------------------------------------------ |
-| \$cert_value1 | Domínio do site.<br>Ex.: servico.uneal.edu.br                |
-| \$cert_value2 | Endereço de Email.<br>Ex.: nutec@email.com                   |
+| Varíavel     | Descrição                                     |
+| ------------ | --------------------------------------------- |
+| \$certb_var1 | **Dir. ACME**                                 |
+| \$certb_var2 | Endereço de Email.<br>Ex.: nutec@email.com    |
+| \$certb_var3 | Domínio do site.<br>Ex.: servico.uneal.edu.br |
 
-<br>
-
-*Info*: esse comando gerará um certificado com o domínio, e-mail.
+Dica.: você pode especificar mais de um domínio, separando-os por "," (virgula).
 
 
-### Renovação - Certbot
+### Renovação Automática
+
+#### Configurando os Scripts
+
+1. Pasta com os Scripts [***scripts-certbot***](./scripts-certbot).
+2. Copie a pasta/arquivos para o local de sua preferência.
+3. Em [***certbot-run-renew.sh***](./scripts-certbot/certbot-run-renew.sh) configure as variáveis de ambiente.
+4. Se necessário, utilize o [***certbot-post-renew.sh***](scripts-certbot/certbot-post-renew.sh) para rodar scripts/comandos após a renovação do certificado (somente será executado se a renovação for bem sucedida). Uma aplicação desse script é o "*reload*" das configurações do servidor após a renovação.
+
+#### Job Cron
 
 Adicione a seguinte configuração no crontab da máquina host.
 
-```text
-#  Esse comando verificará e, se necessário atualizará, os certificados todos domingos às 00h:00m.
-0 0 * * 0 root docker-compose -f **/dir_certbot-deploy/docker-compose-certbot.yml run -rm \
-  certbot renew -q
+```
+#  Esse comando verificará e, se necessário, atualizará os certificados todos domingos às 00h:00m.
+
+0 0 * * 0 ./$(pwd)/certbot-run-renew.sh
 ```
 
-Para que o novo certificado tenha efeito é necessário recarregar as configurações. Portanto adicione ao crontab:
+Obs.: altere o trecho ***\$(pwd)/certbot-run-renew.sh*** para o caminho do script na máquina alvo.
 
 
-```text
-#  Esse comando fará o recarregamento das configurações do Nginx todos os domingos às   01h:00m.
-0 1 * * 0 root docker exec -it nginx-app nginx -s reload
-```
 
 <br>
 
-## Gerenciamento de Certificados (TLS/SSL | HTTPS) - Com OpenSSL (Manual)
+## OpenSSL (Manual)
 
-### Instalação - OpenSSL
+### Instalação
 
 ```bash
 # Após instalar o OpenSSL
@@ -182,7 +184,7 @@ $ openssl req -new -x509 -key $open_value_1 -out $open_value_3 -days $open_value
 | \$open_value_10: | Nome comum - Domínio.<br>Ex.: servico.uneal.edu.br.                                              |
 | \$open_value_11  | Endereço de Email.<br>Ex.: nutec@gmail.com                                                       |
 
-### Renovação - OpenSSL
+### Renovação
 
 Para renovar um certificado basta gerar um novo seguindo o mesmo processo descrito no secção [Instalação - Com OpenSSL (Manual)](#instalação---openssl).
 
