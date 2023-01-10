@@ -1,6 +1,9 @@
 #!/bin/bash
 
-# Let's Encrypt Path.
+# Docker-Compose (file) path.
+export DOCKER_COMPOSE_PATH=./certbot.docker-compose.yml
+
+# Let's Encrypt path.
 export LETS_PATH=$(pwd)/lets
 
 # Let's Encrypt webroot path (public_html). ACME challenge storage.

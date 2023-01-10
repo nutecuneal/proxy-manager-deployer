@@ -1,3 +1,3 @@
 #!/bin/bash
 
-echo "Script..";
+echo "Script POST.."

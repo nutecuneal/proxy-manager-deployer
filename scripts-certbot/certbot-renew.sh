@@ -2,6 +2,13 @@
 
 echo "########### Certbot Renew Script ###########"
 
+if [[ -z $DOCKER_COMPOSE_PATH ]]; then
+    echo "|"
+    echo "|+- Status:"
+    echo "  Failure.: Docker-Compose path not defined."
+    exit 1
+fi
+
 if [[ -z $LETS_PATH ]]; then
     echo "|"
     echo "|+- Status:"
@@ -67,7 +74,10 @@ fun_get_domains_cert(){
 }
 
 fun_renew_cert(){
-    echo $1
+    docker-compose -f certbot.docker-compose.yml run --rm app \
+    certonly --webroot --webroot-path=$LETS_WEB_ROOT_PATH \
+    -m $CERT_EMAIL -d $CERT_DOMAINS_LIST \
+    --agree-tos
 }
 
 fun_main(){
