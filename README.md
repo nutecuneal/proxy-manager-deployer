@@ -1,6 +1,6 @@
 # Reverse Proxy - Deploy
 
-Este repositório abordará sobre como instalar servidores de **balanceamento de carga (*Load Balancer*)**, **servidores web (*Web Server*)** e **proxy reverso (*Reverse Proxy*)**. 
+Este repositório abordará sobre como instalar servidores de **balanceamento de carga (*Load Balancer*)**, **servidores web (*Web Server*)** e **proxy reverso (*Reverse Proxy*)**, além de Gerenciamento de Certificados SSL/TLS. 
 
 1. [NGINX](https://docs.nginx.com) é um servidor HTTP gratuito, de código aberto e de alto desempenho e proxy reverso, bem como um servidor proxy IMAP/POP3. O NGINX é conhecido por seu alto desempenho, estabilidade, rico conjunto de recursos, configuração simples e baixo consumo de recursos.
 
@@ -20,10 +20,12 @@ Este repositório abordará sobre como instalar servidores de **balanceamento de
     - [Nginx Rede](#nginx-rede)
       - [Com Docker-Compose](#com-docker-compose)
       - [Terminal](#terminal)
+  - [Certificado SSL/TLS (HTTPS)](#certificado-ssltls-https)
 
 ## Requisitos e Dependências
 
-- [Docker e Docker-Compose](https://docs.docker.com/)
+- Nginx
+  - [Docker e Docker-Compose](https://docs.docker.com/)
 
 <br>
 
@@ -70,7 +72,7 @@ ports:
 
 ```yml
 # nginx.docker-compose.yml (Em services.app)
-# Aponte para as pastas/arquivos criadas anteriormente.
+# Aponte para as pastas/arquivos criados anteriormente.
 
 # Antes
 volumes:
@@ -87,7 +89,7 @@ volumes:
 
 1. ***\$(pwd)/certs_live*** será o local dos seus certificados SSL/TLS.
 2. Somente descomente a linha ***\$(pwd)/certbot_acme_challenge...*** caso opte por obter os certificados SSL/TLS usando o Certbot. Este volume apontará para o diretório de “ACME Challenge” usado pelo seu Certbot.
-3. Antes de prosseguir, leia o guia de gerenciamento de [Certificado SSL/TLS (HTTPS)](./README.cert.md).
+3. Antes de prosseguir, leia o guia de gerenciamento de [Certificado SSL/TLS (HTTPS)](#certificado-ssltls-https).
 
 ##### Rede
 
@@ -108,29 +110,28 @@ config:
 $ docker-compose -f nginx.docker-compose.yml up
 ```
 
-*Dica*: consulte a documentação *Nginx* para configurar o arquivo ***nginx.conf***. É preciso uma configuração mínima para o container poder ser iniciado.
-
+Dica.: consulte a documentação *Nginx* para configurar o arquivo ***nginx.conf***. É preciso uma configuração mínima para o container poder ser iniciado.
 
 ### Nginx Rede
 
 A rede Nginx foi pensada para que matenha o isolamento completo de outros containers presentes na máquina host, por isso, para que o container Nginx alcance outros containers/hosts é necessário adicioná-los a rede. 
 
-Para isso existem dos métodos: (1) com [ Docker-Compose](#com-docker-compose), recomendado, porém necessita recriar o container alvo; (2) via [Terminal](#terminal).
+Para isso existem dos métodos:
+1. Com [ Docker-Compose](#com-docker-compose), recomendado, porém necessita recriar o container alvo.
+2. Via [Terminal](#terminal).
 
 #### Com Docker-Compose
 
 ```yml
 # No [..]docker-compose.yml do seu serviço alvo.
 
-# Adicione:
-networks:
-  nginx-net:
-    name: 'nginx-net'
-    external: true
+# (Em networks) adicione:
+nginx-net:
+  name: 'nginx-net'
+  external: true
 
-# No serviço
-networks:
-  - nginx-net
+# (Em services.SERVICENAME.networks) adicione:
+- nginx-net
 ```
 
 #### Terminal
@@ -138,7 +139,13 @@ networks:
 ```bash
 # Execute
 
-docker network connect nginx-net CONTAINER_NAME --alias HOSTNAME
+docker network connect nginx-net CONTAINER_NAME --alias CONTAINER_ALIAS
 ```
 
-Dica: você poderá localizar os containers na rede através de seus IPs, para inspecionar isso use o comando ***docker inspect CONTAINER_NAME***. Ou simplesmene use nome do container como **Hostname**.
+Dica.: você poderá localizar os containers na rede através de seus IPs, para inspecionar isso use o comando "***docker inspect CONTAINER_NAME***". Ou simplesmene use o "***alias***" do container como se fosse um **Hostname/DNS**.
+
+<br>
+
+## Certificado SSL/TLS (HTTPS)
+
+>> [Clique aqui para ir ao guia](./README.cert.md)
