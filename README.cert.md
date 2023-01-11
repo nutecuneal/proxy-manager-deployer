@@ -24,6 +24,7 @@ Neste documento será abordado sobre como gerenciar certificados SSL/TLS para HT
   - [OpenSSL (Manual)](#openssl-manual)
     - [Obtendo um Certificado](#obtendo-um-certificado-1)
     - [Renovação](#renovação)
+  - [Referências](#referências)
 
 ## Requisitos e Dependências
 
@@ -197,3 +198,7 @@ A renovar de um certificado se dá da mesma forma explanada na secção ([OpenSS
 1. A geração da chave privada RSA é opcional. (Recomendado gerar uma nova).
 2. Se a chave ou o certificado forem gerados com nomes diferentes será necessário alterar o arquivo de configuração de ser servidor.
 3. Após realizar o processo **reinicie o container** ou **faça o *reload* das configurações** no servidor para que as mudança sejam aplicadas.
+
+## Referências
+
+1. https://gist.github.com/maxivak/4706c87698d14e9de0918b6ea2a41015
