@@ -60,7 +60,7 @@ Sugestão (no Linux):
 - Dir. ACME: */var/www/certbot*
 
 
-Dica: os certificados serão armazenados em **"Dir. Config/Dados"/live**, então, esse será o seu caminho ***\$(pwd)/certs_live***.
+Dica: os certificados serão armazenados em **"Dir. Config/Dados"**, então, esse será o seu caminho ***\$(pwd)/certs_live***.
 
 ### Docker-Compose
 
