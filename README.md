@@ -138,7 +138,7 @@ networks:
 ```bash
 # Execute
 
-docker network connect nginx-net CONTAINER_NAME
+docker network connect nginx-net CONTAINER_NAME --alias HOSTNAME
 ```
 
 Dica: você poderá localizar os containers na rede através de seus IPs, para inspecionar isso use o comando ***docker inspect CONTAINER_NAME***. Ou simplesmene use nome do container como **Hostname**.
