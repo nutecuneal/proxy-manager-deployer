@@ -59,6 +59,9 @@ Sugestão (no Linux):
 - Dir. Log: */var/log/letsencrypt*
 - Dir. ACME: */var/www/certbot*
 
+
+Dica: os certificados serão armazenados em **"Dir. Config/Dados"/live**, então, esse será o seu caminho ***\$(pwd)/certs_live***.
+
 ### Docker-Compose
 
 #### Volume
@@ -117,17 +120,18 @@ http {
 ```bash
 # Execute para gerar um novo certificado
 
-$ docker-compose -f certbot.docker-compose.yml run --rm app certonly --webroot --webroot-path=$certb_var1 -m $certb_var2 -d $certb_var3 --agree-tos
+$ docker-compose -f certbot.docker-compose.yml run --rm app certonly --webroot --webroot-path=/var/www/certbot -m $certb_var1 -d $certb_var2 --agree-tos
 ```
 
 | Varíavel     | Descrição                                     |
 | ------------ | --------------------------------------------- |
-| \$certb_var1 | **Dir. ACME**                                 |
-| \$certb_var2 | Endereço de Email.<br>Ex.: nutec@email.com    |
-| \$certb_var3 | Domínio do site.<br>Ex.: servico.uneal.edu.br |
+| \$certb_var1 | Endereço de Email.<br>Ex.: nutec@email.com    |
+| \$certb_var2 | Domínio do site.<br>Ex.: servico.uneal.edu.br |
 
 Dica.: você pode especificar mais de um domínio, separando-os por "," (virgula).
 
+
+>> Agora: Após rodar o comando execute/suba o seu servidor Proxy-Manager.
 
 ### Renovação Automática
 

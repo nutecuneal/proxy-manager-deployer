@@ -16,13 +16,6 @@ if [[ -z $LETS_PATH ]]; then
     exit 1
 fi
 
-if [[ -z $LETS_WEB_ROOT_PATH ]]; then
-    echo "|"
-    echo "|+- Status:"
-    echo "  Failure.: Let's Encrypt webroot path not defined."
-    exit 1
-fi
-
 if [[ -z $WORK_DIR ]]; then
     echo "|"
     echo "|+- Status:"
@@ -74,8 +67,8 @@ fun_get_domains_cert(){
 }
 
 fun_renew_cert(){
-    docker-compose -f certbot.docker-compose.yml run --rm app \
-    certonly --webroot --webroot-path=$LETS_WEB_ROOT_PATH \
+    docker-compose -f $DOCKER_COMPOSE_PATH run --rm app \
+    certonly --webroot --webroot-path=/var/www/certbot \
     -m $CERT_EMAIL -d $CERT_DOMAINS_LIST \
     --agree-tos
 }

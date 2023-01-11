@@ -6,9 +6,6 @@ export DOCKER_COMPOSE_PATH=./certbot.docker-compose.yml
 # Let's Encrypt path.
 export LETS_PATH=$(pwd)/lets
 
-# Let's Encrypt webroot path (public_html). ACME challenge storage.
-export LETS_WEB_ROOT_PATH=/var/www
-
 # Name is used by Certbot for housekeeping and in file paths. Domain/"cert-name"
 export WORK_DIR=cert-name
 
