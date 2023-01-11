@@ -17,9 +17,9 @@ Este repositório abordará sobre como instalar servidores de **balanceamento de
         - [Volumes](#volumes)
         - [Rede](#rede)
       - [Executando o Docker-Compose](#executando-o-docker-compose)
-    - [Nginx Rede - Como Adicionar Containers](#nginx-rede---como-adicionar-containers)
+    - [Nginx Rede](#nginx-rede)
       - [Com Docker-Compose](#com-docker-compose)
-      - [Com Terminal](#com-terminal)
+      - [Terminal](#terminal)
 
 ## Requisitos e Dependências
 
@@ -76,10 +76,8 @@ ports:
 volumes:
   - '$(pwd)/nginx.conf:/etc/nginx/nginx.conf:ro'
   - '$(pwd)/log_nginx:/var/log/nginx'
-  - '$(pwd)/certs_live:/certs:ro' # Local dos certificados TLS/SSL
+  - '$(pwd)/certs_live:/certs:ro'
   # - '$(pwd)/certbot_acme_challenge:/data/www/acme-challenge:ro'
-
-# Descomente a linha acima caso opte por obter os certificados TLS/SSL usando o certbot.
 
 # Depois (exemplo)
 volumes:
@@ -87,13 +85,15 @@ volumes:
   - '/var/log/nginx:/var/log/nginx'
 ```
 
-Info.: os volumes **"\$(pwd)/certs_live:/certs:ro"** e **"\$(pwd)/certbot_acme_challenge:/data/www/acme-challenge:ro"** serão mapeados para os diretórios de armazenamento de seus certificados TLS/SSL e para o diretório de “ACME Challenge” usado pelo seu Certbot, respectivamente. [Certificado TLS/SSL (HTTPS)](./README.cert.md)
+1. ***\$(pwd)/certs_live*** será o local dos seus certificados SSL/TLS.
+2. Somente descomente a linha ***\$(pwd)/certbot_acme_challenge...*** caso opte por obter os certificados SSL/TLS usando o Certbot. Este volume apontará para o diretório de “ACME Challenge” usado pelo seu Certbot.
+3. Antes de prosseguir, leia o guia de gerenciamento de [Certificado SSL/TLS (HTTPS)](./README.cert.md).
 
 ##### Rede
 
 ```yml
 # nginx.docker-compose.yml (Em networks.nginx-net.ipam)
-# Altere o valores caso necessário. 
+# Altere os valores caso necessário. 
 
 config:
 # Endereço da rede
@@ -108,13 +108,14 @@ config:
 $ docker-compose -f nginx.docker-compose.yml up
 ```
 
-*Dica*: consulte a documentação *Nginx* para configurar o arquivo ***nginx.conf***. É preciso um configuração mínima para o container poder ser iniciado.
+*Dica*: consulte a documentação *Nginx* para configurar o arquivo ***nginx.conf***. É preciso uma configuração mínima para o container poder ser iniciado.
 
 
-### Nginx Rede - Como Adicionar Containers
+### Nginx Rede
 
-A rede Nginx foi pensada para que matenha o isolamento completo de outros containers presentes na máquina host, por isso, para que o container Nginx alcance outros containers é necessário adicioná-los a rede. Para isso existem dos métodos:
+A rede Nginx foi pensada para que matenha o isolamento completo de outros containers presentes na máquina host, por isso, para que o container Nginx alcance outros containers/hosts é necessário adicioná-los a rede. 
 
+Para isso existem dos métodos: (1) com [ Docker-Compose](#com-docker-compose), recomendado, porém necessita recriar o container alvo; (2) via [Terminal](#terminal).
 
 #### Com Docker-Compose
 
@@ -132,10 +133,12 @@ networks:
   - nginx-net
 ```
 
-#### Com Terminal
+#### Terminal
 
 ```bash
 # Execute
 
 docker network connect nginx-net CONTAINER_NAME
 ```
+
+Dica: você poderá localizar os containers na rede através de seus IPs, para inspecionar isso use o comando ***docker inspect CONTAINER_NAME***. Ou simplesmene use nome do container como **Hostname**.
