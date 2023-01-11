@@ -57,7 +57,7 @@ second_per_day=$[24*3600]
 date_today=$(date -d "now" +%s)
 
 fun_calc_downtime_cert(){
-    local _cert_date_end=$(date --date="$(openssl x509 -in $LETS_PATH/live/$WORK_DIR/$FILE_NAME -text -nouot | grep 'Not After' | cut -c 25-)" +%s)
+    local _cert_date_end=$(date --date="$(openssl x509 -in $LETS_PATH/live/$WORK_DIR/$FILE_NAME -text -noout | grep 'Not After' | cut -c 25-)" +%s)
     
     cert_downtime=$[($_cert_date_end - $date_today) / $second_per_day]
 }
@@ -70,7 +70,7 @@ fun_renew_cert(){
     docker-compose -f $DOCKER_COMPOSE_PATH run --rm app \
     certonly --webroot --webroot-path=/var/www/certbot \
     -m $CERT_EMAIL -d $CERT_DOMAINS_LIST \
-    --agree-tos
+    --force-renewal --agree-tos
 }
 
 fun_main(){
