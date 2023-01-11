@@ -2,7 +2,8 @@
 
 Neste documento será abordado sobre como gerenciar certificados SSL/TLS para HTTPS, utilizando Certbot (Let's Encrypt) e/ou OpenSSL.
 
-1. O [Certbot](https://certbot.eff.org/) é uma ferramenta de software gratuita e de código aberto para usar automaticamente os certificados [Let's Encrypt](https://letsencrypt.org/) em sites administrados manualmente para habilitar o HTTPS. O Let's Encrypt é uma Autoridade Certificadora gratuita, automatizada e aberta. Os certificados Let's Encrypt gratuitos têm validade de apenas 90 dias, com o Certbot é possível automatizar a criação e a renovação desses certificados. [Certbot - Docs](https://eff-certbot.readthedocs.io/en/stable/intro.html)
+1. O [Certbot](https://certbot.eff.org/) é uma ferramenta de software gratuita e de código aberto para manutenção de certificados [Let's Encrypt](https://letsencrypt.org/) em sites administrados manualmente. O Let's Encrypt é uma Autoridade Certificadora gratuita e aberta. Os certificados Let's Encrypt são gratuitos e têm validade de apenas 90 dias, com o Certbot é possível automatizar a criação e a renovação desses certificados. [Certbot - Docs](https://eff-certbot.readthedocs.io/en/stable/intro.html).
+2. O [OpenSSL](https://www.openssl.org/) é um projeto que prover um kit robusto de ferramentas para criptografia de uso geral e comunicação. Com ele, é possível gera certificados de diversos tipos. Recomendado não usar em produção, pois seus certificados não possuem uma Autoridade Certificadoran (CA) que possa validá-lo e isso ocasionará mensagens de segurança nos navegadores. [OpenSSL - Docs](https://www.openssl.org/docs/).
 
 ## Sumário
 
@@ -18,9 +19,10 @@ Neste documento será abordado sobre como gerenciar certificados SSL/TLS para HT
       - [Executando o Docker-Compose - Certbot](#executando-o-docker-compose---certbot)
     - [Renovação Automática](#renovação-automática)
       - [Configurando os Scripts](#configurando-os-scripts)
-      - [Job Cron](#job-cron)
+      - [Agendamento de Tarefa](#agendamento-de-tarefa)
+        - [Cron (Linux)](#cron-linux)
   - [OpenSSL (Manual)](#openssl-manual)
-    - [Instalação](#instalação)
+    - [Obtendo um Certificado](#obtendo-um-certificado-1)
     - [Renovação](#renovação)
 
 ## Requisitos e Dependências
@@ -29,7 +31,6 @@ Neste documento será abordado sobre como gerenciar certificados SSL/TLS para HT
   - [Docker e Docker-Compose](https://docs.docker.com/)
 - OpenSSL
   - [OpenSSL](https://www.openssl.org/)
-  - [Documentação](https://www.openssl.org/docs/)
 
 <br>
 
@@ -68,7 +69,7 @@ Dica: os certificados serão armazenados em **"Dir. Config/Dados"**, então, ess
 
 ```yml
 # certbot.docker-compose.yml (Em services.app)
-# Aponte para as pastas/arquivos criadas anteriormente.
+# Aponte para as pastas criadas anteriormente.
 
 # Antes
 volumes:
@@ -91,7 +92,8 @@ Está secção será utilizada para obter o certificado pela primeira vez, ou se
 
 #### Com Nginx
 
-Inicie o seu Nginx com a seguinte configuração:
+Inicialmente, configure seu arquivo *nginx.conf* da seguinte maneira:
+
 
 ```conf
 # nginx.conf
@@ -120,78 +122,78 @@ http {
 ```bash
 # Execute para gerar um novo certificado
 
-$ docker-compose -f certbot.docker-compose.yml run --rm app certonly --webroot --webroot-path=/var/www/certbot -m $certb_var1 -d $certb_var2 --agree-tos
+$ docker-compose -f certbot.docker-compose.yml run --rm app certonly --webroot --webroot-path=/var/www/certbot -m EMAIL -d DOMAINS --agree-tos
 ```
 
-| Varíavel     | Descrição                                     |
-| ------------ | --------------------------------------------- |
-| \$certb_var1 | Endereço de Email.<br>Ex.: nutec@email.com    |
-| \$certb_var2 | Domínio do site.<br>Ex.: servico.uneal.edu.br |
-
-Dica.: você pode especificar mais de um domínio, separando-os por "," (virgula).
+| Varíavel | Descrição                                                         |
+| -------- | ----------------------------------------------------------------- |
+| EMAIL    | Um endereço de Email                                              |
+| DOMAINS  | Domínio do site. Ou, domínios (separado por virgula e sem espaço) |
 
 
->> Agora: Após rodar o comando execute/suba o seu servidor Proxy-Manager.
+**Obs: após rodar o comando execute/suba o seu servidor Proxy-Manager. Você poderá também executar/subir o Proxy-Manager antes de rodar comando acima, porém necessitará criar os diretórios requisitados manualmente.**
 
 ### Renovação Automática
 
 #### Configurando os Scripts
 
-1. Pasta com os Scripts [***scripts-certbot***](./scripts-certbot).
-2. Copie a pasta/arquivos para o local de sua preferência.
+1. Pasta com os scripts: [***scripts-certbot***](./scripts-certbot).
+2. Copie a pasta - ou somente os arquivos - para o local de sua preferência.
 3. Em [***certbot-run-renew.sh***](./scripts-certbot/certbot-run-renew.sh) configure as variáveis de ambiente.
-4. Se necessário, utilize o [***certbot-post-renew.sh***](scripts-certbot/certbot-post-renew.sh) para rodar scripts/comandos após a renovação do certificado (somente será executado se a renovação for bem sucedida). Uma aplicação desse script é o "*reload*" das configurações do servidor após a renovação.
+4. Se necessário, utilize o [***certbot-post-renew.sh***](scripts-certbot/certbot-post-renew.sh) para rodar scripts/comandos após a renovação do certificado (somente será executado se a renovação for bem sucedida). Esse script pode ser útil para efetuar "*reload*" das configurações do servidor após a renovação.
 
-#### Job Cron
+#### Agendamento de Tarefa
 
-Adicione a seguinte configuração no crontab da máquina host.
+##### Cron (Linux)
+
+Adicione a seguinte configuração no crontab da máquina host:
 
 ```
-#  Esse comando verificará e, se necessário, atualizará os certificados todos domingos às 00h:00m.
+# Essa instrução adiciona uma tarefa que verificará e, se necessário, atualizará os certificados todos domingos às 00h:00m.
 
 0 0 * * 0 ./$(pwd)/certbot-run-renew.sh
 ```
 
-Obs.: altere o trecho ***\$(pwd)/certbot-run-renew.sh*** para o caminho do script na máquina alvo.
-
-
+Dica.: altere o trecho ***\$(pwd)/certbot-run-renew.sh*** para o caminho do script na máquina host.
 
 <br>
 
 ## OpenSSL (Manual)
 
-### Instalação
+### Obtendo um Certificado
 
 ```bash
 # Após instalar o OpenSSL
 
 # Geração de chave privada RSA
-$ openssl genpkey -out $open_value_1 -algorithm RSA -pkeyopt rsa_keygen_bits:$open_value_2
+$ openssl genpkey -out KEYFILENAME -algorithm RSA -pkeyopt rsa_keygen_bits:RSABITS
 
 # Geração de certificado
-$ openssl req -new -x509 -key $open_value_1 -out $open_value_3 -days $open_value_4 -subj="/C=$open_value_5/ST=$open_value_6/L=$open_value_7/O=$open_value_8/OU=$open_value_9/CN=$open_value_10/emailAddress=$open_value_11"
+$ openssl req -new -x509 -key KEYFILENAME -out CERTFILENAME -days VALIDDAYS -subj="/C=COUNTRY/ST=STATE/L=CITY/O=ORG/OU=DEPARTMENT/CN=DOMAIN/emailAddress=EMAIL"
 
 # Copie a chave e o certificado para o seu "diretório de certificados" 
 ```
 
-| Varíavel         | Descrição                                                                                        |
-| ---------------- | ------------------------------------------------------------------------------------------------ |
-| \$open_value_1   | Nome do arquivo (chave privada)<br>Ex.: **nome.key**.                                            |
-| \$open_value_2   | Tamanho(bits) da chave gerada.<br>Ex.: 2048 (bom), 3072 (Ideal), 4096 (Forte - porém mais lento) |
-| \$open_value_3   | Nome do arquivo (certificado)<br>Ex.: **nome.pem**.                                              |
-| \$open_value_4   | Dias de validade do certificado<br>Ex.:1000                                                      |
-| \$open_value_5   | Código do país (duas letras).<br>Ex.: BR                                                         |
-| \$open_value_6   | Estado.<br>Ex.: Alagoas.                                                                         |
-| \$open_value_7   | Cidade.<br>Ex.: Arapiraca.                                                                       |
-| \$open_value_8   | Nome da Organização.<br>Ex.:Universidade Estadual de Alagoas.                                    |
-| \$open_value_9   | Departamento da Organização.<br>Ex.: NUTEC.                                                      |
-| \$open_value_10: | Nome comum - Domínio.<br>Ex.: servico.uneal.edu.br.                                              |
-| \$open_value_11  | Endereço de Email.<br>Ex.: nutec@gmail.com                                                       |
+| Varíavel     | Descrição                                                     |
+| ------------ | ------------------------------------------------------------- |
+| KEYFILENAME  | Nome do arquivo (chave privada)<br>Ex.: **nome.key**.         |
+| RSABITS      | Tamanho(bits) da chave gerada.                                |
+| CERTFILENAME | Nome do arquivo (certificado)<br>Ex.: **nome.pem**.           |
+| VALIDDAYS    | Dias de validade do certificado<br>Ex.:1000                   |
+| COUNTRY      | Código do país (duas letras).<br>Ex.: BR                      |
+| STATE        | Estado.<br>Ex.: Alagoas.                                      |
+| CITY         | Cidade.<br>Ex.: Arapiraca.                                    |
+| ORG          | Nome da Organização.<br>Ex.:Universidade Estadual de Alagoas. |
+| DEPARTMENT   | Departamento da Organização.<br>Ex.: NUTEC.                   |
+| DOMAIN       | Nome comum - Domínio.<br>Ex.: servico.uneal.edu.br.           |
+| EMAIL        | Endereço de Email.<br>Ex.: nutec@gmail.com                    |
+
+Obs.: RSABITS - 2048 (bom), 3072 (Ideal), 4096 (Forte - porém mais lento).
 
 ### Renovação
 
-Para renovar um certificado basta gerar um novo seguindo o mesmo processo descrito no secção [Instalação - Com OpenSSL (Manual)](#instalação---openssl).
+A renovar de um certificado se dá da mesma forma explanada na secção ([OpenSSL (Manual) > Obtendo um Certificado](#obtendo-um-certificado-1)). Algumas observações:
 
-- A geração da chave privada RSA é opcional. (Recomendado gerar uma nova).
-- Se a chave ou o certificado forem gerados com nomes diferentes será necessário alterar o arquivo *nginx.conf*.
-- Após realizar o processo reinicie o container do seu Nginx para que as mudança sejam aplicadas.
+1. A geração da chave privada RSA é opcional. (Recomendado gerar uma nova).
+2. Se a chave ou o certificado forem gerados com nomes diferentes será necessário alterar o arquivo de configuração de ser servidor.
+3. Após realizar o processo **reinicie o container** ou **faça o *reload* das configurações** no servidor para que as mudança sejam aplicadas.
