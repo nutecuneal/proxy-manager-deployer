@@ -3,6 +3,9 @@
 # Docker-Compose (file) path.
 export DOCKER_COMPOSE_PATH=./certbot.docker-compose.yml
 
+# Script path.
+export SCRIPT_WORK_DIR=./
+
 # Let's Encrypt path.
 export LETS_PATH=$(pwd)/lets
 
@@ -27,12 +30,12 @@ export CRITICAL_PERIOD=30
 
 
 if [[ -z $SCRIPT_POST_RENEW_FILENAME ]]; then
-    ./certbot-renew.sh
+    $SCRIPT_WORK_DIR/certbot-renew.sh
 else
-    ./certbot-renew.sh && \
+    $SCRIPT_WORK_DIR/certbot-renew.sh && \
     echo "" && echo "" && \
     echo "++++++ RUN POST-RENEW ++++++" && \
-    ./$SCRIPT_POST_RENEW_FILENAME
+    $SCRIPT_WORK_DIR/$SCRIPT_POST_RENEW_FILENAME
 fi
 
 

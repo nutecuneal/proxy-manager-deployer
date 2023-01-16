@@ -152,7 +152,13 @@ Adicione a seguinte configuração no crontab da máquina host:
 ```
 # Essa instrução adiciona uma tarefa que verificará e, se necessário, atualizará os certificados todos domingos às 00h:00m.
 
-0 0 * * 0 ./$(pwd)/certbot-run-renew.sh
+0 0 * * 0 $(pwd)/certbot-run-renew.sh
+```
+
+```
+# Com arquivo de log
+
+0 0 * * 0 $(pwd)/certbot-run-renew.sh >> filelog.log 2>&1
 ```
 
 Dica.: altere o trecho ***\$(pwd)/certbot-run-renew.sh*** para o caminho do script na máquina host.
