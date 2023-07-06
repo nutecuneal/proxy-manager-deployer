@@ -16,15 +16,13 @@ export FILE_NAME=fullchain.pem
 export CERT_EMAIL=example@email.com
 
 # List of domains for registration (commam separated).
-export CERT_DOMAINS_LIST=example.domain1[[,example.domain2]...]
+export CERT_DOMAINS_FOR_REGIST=example.domain1[[,example.domain2]...]
 
 # The certificate will be updated if its lifetime is less than or equal this value.
 export CRITICAL_PERIOD=15a
 
 # Script run: successful post renew.
 #export SCRIPT_POST_RENEW_FILE=certbot-post-renew.sh
-
-export LOG_FILE=
 
 ./certbot-renew.sh
 
