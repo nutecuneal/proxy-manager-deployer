@@ -10,7 +10,7 @@ log_realtime=
 
 
 calc_downtime_certificate(){
-    local cert_date_end=$(date --date="$(openssl x509 -in $LETS_PATH/live/$WORK_DIR/$FILE_NAME -text -noout | grep 'Not After' | cut -c 25-)" +%s)
+    local cert_date_end=$(date --date="$(openssl x509 -in $LETS_PATH/live/$CERT_WORKDIR/$FILE_NAME -text -noout | grep 'Not After' | cut -c 25-)" +%s)
     
     cert_downtime=$(( ($cert_date_end - $DATE_TODAY) / $SECONDS_PER_DAY ))
 }
@@ -95,7 +95,7 @@ if ! [[ $CRITICAL_PERIOD =~ $RE_PATTERN_NUMBER ]]; then
 fi
 
 
-if ! [[ -f $LETS_PATH/live/$CERT_WORKDIR/$FILE_NAME ]]; then
+if [[ ! -f $LETS_PATH/live/$CERT_WORKDIR/$FILE_NAME ]]; then
     log_realtime+="'$LETS_PATH/live/$CERT_WORKDIR/$FILE_NAME' not found, creating... "
 else
     calc_downtime_certificate
