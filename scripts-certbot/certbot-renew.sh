@@ -31,7 +31,7 @@ print_log(){
 }
 
 
-if [[ -z $DOCKER_COMPOSE_FILE || -f $DOCKER_COMPOSE_FILE ]]; then
+if [[ -z $DOCKER_COMPOSE_FILE || ! -f $DOCKER_COMPOSE_FILE ]]; then
     log_prefix=$(echo "[$(date)] [ERROR]")
     log_realtime+="Docker-Compose not found, in '$DOCKER_COMPOSE_FILE'."
     
@@ -40,7 +40,7 @@ if [[ -z $DOCKER_COMPOSE_FILE || -f $DOCKER_COMPOSE_FILE ]]; then
     exit 1
 fi
 
-if [[ -z $LETS_PATH  || -d $LETS_PATH]]; then
+if [[ -z $LETS_PATH  || ! -d $LETS_PATH ]]; then
     log_prefix=$(echo "[$(date)] [ERROR]")
     log_realtime+="Let's Encrypt path not found, in '$LETS_PATH'."
     
@@ -49,9 +49,9 @@ if [[ -z $LETS_PATH  || -d $LETS_PATH]]; then
     exit 1
 fi
 
-if [[ -z $CERT_WORKDIR  || -d $CERT_WORKDIR]]; then
+if [[ -z $CERT_WORKDIR ]]; then
     log_prefix=$(echo "[$(date)] [ERROR]")
-    log_realtime+="Cert. Workdir path not found, in '$CERT_WORKDIR'."
+    log_realtime+="Cert. workdir not defined."
     
     print_log
     
@@ -87,7 +87,7 @@ fi
 
 if ! [[ $CRITICAL_PERIOD =~ $RE_PATTERN_NUMBER ]]; then
     log_prefix=$(echo "[$(date)] [ERROR]")
-    log_realtime+="Critical period not is a number, actualValue=$CRITICAL_PERIOD."
+    log_realtime+="Critical period not is a number, actual=$CRITICAL_PERIOD."
     
     print_log
     
