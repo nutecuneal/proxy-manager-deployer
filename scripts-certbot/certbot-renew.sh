@@ -16,7 +16,7 @@ calc_downtime_certificate(){
 }
 
 get_all_domains_from_certificate(){
-    cert_all_domains=($(openssl x509 -in $LETS_PATH/live/$WORK_DIR/$FILE_NAME -text -noout | grep -oP '(?<=DNS:)[^,]*' | tr "\n" " "))
+    cert_all_domains=($(openssl x509 -in $LETS_PATH/live/$CERT_WORKDIR/$FILE_NAME -text -noout | grep -oP '(?<=DNS:)[^,]*' | tr "\n" " "))
 }
 
 renew_certificate(){
@@ -112,7 +112,7 @@ else
     fi
 fi
 
-renew_cert
+renew_certificate
 
 calc_downtime_certificate
 
