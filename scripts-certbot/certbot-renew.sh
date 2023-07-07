@@ -105,7 +105,7 @@ else
     if [[ $cert_downtime -gt $CRITICAL_PERIOD ]]; then
         log_prefix=$(echo "[$(date)] [OK]")
         log_realtime+="nothing to do, the certificate is within the security space."
-        
+
         print_log
         
         exit 0
@@ -131,7 +131,7 @@ all_domains_for_renewal=$(echo $CERT_DOMAINS_FOR_REGIST | tr "," " ")
 
 unverified_domains=$(
     for domain in ${all_domains_for_renewal[@]}; do
-        [[ $domain =~ "$cert_all_domains" ]] || echo $domain
+        [[ $domain =~ "$cert_all_domains" ]] || echo -n "$domain,"
     done
 )
 
@@ -146,7 +146,7 @@ fi
 log_realtime+="Days Remaining: $cert_downtime."
 
 if  [[ ! -z $SCRIPT_POST_RENEW_FILE && -f $SCRIPT_POST_RENEW_FILE  ]]; then
-    log_realtime+=$(echo " Running '$SCRIPT_POST_RENEW_FILE'... $($SCRIPT_POST_RENEW_FILE && echo "finished" || echo "fail").")
+    log_realtime+=$(echo " Running '$SCRIPT_POST_RENEW_FILE'... $($SCRIPT_POST_RENEW_FILE &> /dev/null && echo "finished" || echo "fail").")
 fi
 
 print_log
